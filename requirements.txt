@@ -1,0 +1,19 @@
+# Flask Web Framework
+Flask==2.3.2
+
+# Pandas for data processing (pre-built wheels compatible with Python 3.12)
+pandas==2.1.0
+
+# Excel reading/writing
+openpyxl==3.1.2
+xlrd==2.0.1
+
+# Word documents
+python-docx==0.8.11
+
+# PDF reading
+PyPDF2==3.0.1
+
+# Logging and general dependencies
+setuptools>=65.0.0
+wheel>=0.40.0

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI QA Framework</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>AI QA Framework</h1>
+
+    <div class="tabs">
+        <button class="tab-btn" onclick="showTab('summarizer')">BRD Summarizer</button>
+        <button class="tab-btn" onclick="showTab('generator')">Test Case Generator</button>
+        <button class="tab-btn" onclick="showTab('reviewer')">Test Case Reviewer</button>
+    </div>
+
+    <div id="summarizer" class="tab-content">
+        <h2>BRD Summarizer</h2>
+        <input type="file" id="brd_file_summarizer"><br><br>
+        <button onclick="summarizeBRD()">Summarize</button>
+        <pre id="summary_result"></pre>
+    </div>
+
+    <div id="generator" class="tab-content" style="display:none;">
+        <h2>Test Case Generator</h2>
+        <input type="file" id="brd_file_generator"><br><br>
+        <button onclick="generateTestCases()">Generate Test Cases</button>
+        <pre id="generator_result"></pre>
+        <a id="generator_download" href="" download>Download CSV</a>
+    </div>
+
+    <div id="reviewer" class="tab-content" style="display:none;">
+        <h2>Test Case Reviewer</h2>
+        Dev Test Cases: <input type="file" id="dev_file"><br><br>
+        QA Test Cases: <input type="file" id="qa_file"><br><br>
+        <button onclick="reviewTestCases()">Review</button>
+        <pre id="review_result"></pre>
+    </div>
+
+<script>
+function showTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.getElementById(tab).style.display = 'block';
+}
+
+function summarizeBRD() {
+    let file = document.getElementById('brd_file_summarizer').files[0];
+    if (!file) return alert("Upload a BRD file");
+    let form = new FormData();
+    form.append("brd_file", file);
+
+    fetch('/summarize', {method:'POST', body: form})
+        .then(r => r.json())
+        .then(data => document.getElementById('summary_result').innerText = data.summary);
+}
+
+function generateTestCases() {
+    let file = document.getElementById('brd_file_generator').files[0];
+    if (!file) return alert("Upload a BRD file");
+    let form = new FormData();
+    form.append("brd_file", file);
+
+    fetch('/generate', {method:'POST', body: form})
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('generator_result').innerText = JSON.stringify(data.test_cases, null, 2);
+            document.getElementById('generator_download').href = '/download/' + data.csv_file.split('/').pop();
+        });
+}
+
+function reviewTestCases() {
+    let dev = document.getElementById('dev_file').files[0];
+    let qa = document.getElementById('qa_file').files[0];
+    if (!dev || !qa) return alert("Upload both Dev and QA files");
+
+    let form = new FormData();
+    form.append("dev_file", dev);
+    form.append("qa_file", qa);
+
+    fetch('/review', {method:'POST', body: form})
+        .then(r => r.json())
+        .then(data => document.getElementById('review_result').innerText = JSON.stringify(data, null, 2));
+}
+</script>
+</body>
+</html>
